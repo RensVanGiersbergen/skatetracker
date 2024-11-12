@@ -27,11 +27,6 @@ vendor/
 # Environment files
 .env
 
-# Docker-specific files
-Dockerfile
-docker-compose.yml
-docker-compose.override.yml
-
 # System files
 .DS_Store
 Thumbs.db
