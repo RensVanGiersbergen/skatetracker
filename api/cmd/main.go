@@ -30,5 +30,8 @@ func main() {
 
 	// Router config
 	r := router.SetupRouter()
-	r.Run() // listen and serve on 0.0.0.0:8080 (Default)
+	err := r.Run() // listen and serve on 0.0.0.0:8080 (Default)
+	if err != nil {
+		log.Fatal("Error starting server")
+	}
 }

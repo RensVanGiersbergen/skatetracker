@@ -1,0 +1,63 @@
+name: Build, Test and Lint skatetracker api
+
+on:
+  pull_request:
+    # Only run workflow for pull requests
+    types: [opened, synchronize, reopened]
+    # Only run workflow for changes in the api or this yml file
+    paths:
+      - "api/**"
+      - ".github/workflows/build-test-lint-api.yml"
+  workflow_dispatch:
+
+jobs:
+  # Test building the go project
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23.0
+      - name: Building
+        run: |
+          cd api
+          go build cmd/main.go
+
+  # Run linter for readability
+  golangci-lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23.0
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v1.62
+          working-directory: api
+          args: --timeout 5m --out-format colored-line-number
+
+  # Test unit tests
+  test:
+    needs: build
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.23.0
+      - name: Run tests
+        run: |
+          cd api
+          go test ./...
