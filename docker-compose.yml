@@ -1,0 +1,13 @@
+version: "3.8"
+
+services:
+  database:
+    image: timescale/timescaledb-ha:pg16
+    environment:
+      POSTGRES_DB: skatetrackerdev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - ./db-init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
