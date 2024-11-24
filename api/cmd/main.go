@@ -3,7 +3,9 @@ package main
 import (
 	"os"
 
+	"github.com/RensVanGiersbergen/skatetracker/repository"
 	"github.com/RensVanGiersbergen/skatetracker/router"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 )
@@ -24,14 +26,26 @@ func main() {
 			log.Fatal("Error loading .env file")
 		}
 	} else {
-		// Set to info level if not in development
+		// Set production mode
+		gin.SetMode(gin.ReleaseMode)
 		log.SetLevel(log.InfoLevel)
+	}
+
+	// Initialize the PostgreSQL connection
+	repository.InitPostgresDB(os.Getenv("POSTGRES_CONNECTION_STRING"))
+
+	defer repository.ClosePostgresDB() // Ensure the DB connection is closed when the app stops
+
+	// Load all queries
+	errQueries := repository.LoadQueries()
+	if errQueries != nil {
+		log.Fatalf("Error loading queries: %v", errQueries)
 	}
 
 	// Router config
 	r := router.SetupRouter()
-	err := r.Run() // listen and serve on 0.0.0.0:8080 (Default)
-	if err != nil {
-		log.Fatal("Error starting server")
+	errRouter := r.Run() // listen and serve on 0.0.0.0:8080 (Default)
+	if errRouter != nil {
+		log.Fatal("Error starting gin router")
 	}
 }
