@@ -31,7 +31,7 @@ func TestLoginRoute_Success(t *testing.T) {
 	// Set up database connection
 	connstr := "host=localhost port=5432 user=postgres password=pizza123 dbname=skatetrackerdev sslmode=disable"
 	repository.InitPostgresDB(connstr)
-	repository.LoadQueries()
+	_ = repository.LoadQueries()
 	defer repository.ClosePostgresDB() // Ensure the DB connection is closed when the app stops
 
 	// Set up router
@@ -57,7 +57,7 @@ func TestLoginRoute_UnusedEmail(t *testing.T) {
 	// Set up database connection
 	connstr := "host=localhost port=5432 user=postgres password=pizza123 dbname=skatetrackerdev sslmode=disable"
 	repository.InitPostgresDB(connstr)
-	repository.LoadQueries()
+	_ = repository.LoadQueries()
 	defer repository.ClosePostgresDB() // Ensure the DB connection is closed when the app stops
 
 	// Set up router
@@ -83,7 +83,7 @@ func TestLoginRoute_InvalidCredentials(t *testing.T) {
 	// Set up database connection
 	connstr := "host=localhost port=5432 user=postgres password=pizza123 dbname=skatetrackerdev sslmode=disable"
 	repository.InitPostgresDB(connstr)
-	repository.LoadQueries()
+	_ = repository.LoadQueries()
 	defer repository.ClosePostgresDB() // Ensure the DB connection is closed when the app stops
 
 	// Set up router
@@ -109,7 +109,7 @@ func TestRegisterRoute_Success(t *testing.T) {
 	// Set up database connection
 	connstr := "host=localhost port=5432 user=postgres password=pizza123 dbname=skatetrackerdev sslmode=disable"
 	repository.InitPostgresDB(connstr)
-	repository.LoadQueries()
+	_ = repository.LoadQueries()
 	defer repository.ClosePostgresDB() // Ensure the DB connection is closed when the app stops
 
 	// Set up router
@@ -135,7 +135,7 @@ func TestRegisterRoute_InvalidEmail(t *testing.T) {
 	// Set up database connection
 	connstr := "host=localhost port=5432 user=postgres password=pizza123 dbname=skatetrackerdev sslmode=disable"
 	repository.InitPostgresDB(connstr)
-	repository.LoadQueries()
+	_ = repository.LoadQueries()
 	defer repository.ClosePostgresDB() // Ensure the DB connection is closed when the app stops
 
 	// Set up router
@@ -161,7 +161,7 @@ func TestRegisterRoute_DuplicateUsername(t *testing.T) {
 	// Set up database connection
 	connstr := "host=localhost port=5432 user=postgres password=pizza123 dbname=skatetrackerdev sslmode=disable"
 	repository.InitPostgresDB(connstr)
-	repository.LoadQueries()
+	_ = repository.LoadQueries()
 	defer repository.ClosePostgresDB() // Ensure the DB connection is closed when the app stops
 
 	// Set up router
@@ -187,7 +187,7 @@ func TestRegisterRoute_DuplicateEmail(t *testing.T) {
 	// Set up database connection
 	connstr := "host=localhost port=5432 user=postgres password=pizza123 dbname=skatetrackerdev sslmode=disable"
 	repository.InitPostgresDB(connstr)
-	repository.LoadQueries()
+	_ = repository.LoadQueries()
 	defer repository.ClosePostgresDB() // Ensure the DB connection is closed when the app stops
 
 	// Set up router
@@ -213,7 +213,7 @@ func TestVerifyRoute_Success(t *testing.T) {
 	// Set up database connection
 	connstr := "host=localhost port=5432 user=postgres password=pizza123 dbname=skatetrackerdev sslmode=disable"
 	repository.InitPostgresDB(connstr)
-	repository.LoadQueries()
+	_ = repository.LoadQueries()
 	defer repository.ClosePostgresDB() // Ensure the DB connection is closed when the app stops
 	os.Setenv("JWT_SECRET", "8xp4faT3fluB7wFhn2Bevbblk4OGOfuufIxKi9KRDZvnzH2Jwj9GGuukX6HTVgr")
 
@@ -237,7 +237,7 @@ func TestVerifyRoute_WrongSecretKey(t *testing.T) {
 	// Set up database connection
 	connstr := "host=localhost port=5432 user=postgres password=pizza123 dbname=skatetrackerdev sslmode=disable"
 	repository.InitPostgresDB(connstr)
-	repository.LoadQueries()
+	_ = repository.LoadQueries()
 	defer repository.ClosePostgresDB() // Ensure the DB connection is closed when the app stops
 	os.Setenv("JWT_SECRET", "someotherkey")
 
