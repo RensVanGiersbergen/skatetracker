@@ -1,11 +1,8 @@
-SELECT
-        user_id,
-        username,
-        email,
-        password_hash,
-        created_at,
-        updated_at
-FROM
-    users
-WHERE
-    email = $1;
+SELECT user_id,
+    username,
+    email,
+    password_hash,
+    created_at,
+    updated_at
+FROM users
+WHERE email = $1;

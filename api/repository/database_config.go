@@ -18,7 +18,7 @@ var db *sql.DB
 var queryFiles embed.FS
 
 // QueryStore holds the content of embedded SQL files by name.
-var QueryStore = make(map[string]string)
+var queryStore = make(map[string]string)
 
 // InitPostgresDB initializes the connection to a PostgreSQL database.
 func InitPostgresDB(connStr string) {
@@ -68,7 +68,7 @@ func LoadQueries() error {
 			if err != nil {
 				return fmt.Errorf("failed to read query file %s: %w", entry.Name(), err)
 			}
-			QueryStore[entry.Name()] = string(content)
+			queryStore[entry.Name()] = string(content)
 		}
 	}
 

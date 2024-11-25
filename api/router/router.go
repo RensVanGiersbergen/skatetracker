@@ -15,7 +15,7 @@ func SetupRouter() *gin.Engine {
 
 	//Define all endpoints
 	router.GET("/test", func(c *gin.Context) {
-		c.JSON(http.StatusOK, "Chill")
+		c.JSON(http.StatusOK, "chill")
 	})
 
 	// Unprotected endpoints
@@ -25,7 +25,7 @@ func SetupRouter() *gin.Engine {
 
 		// Bind the request body to the LoginRequest struct
 		if err := c.ShouldBindJSON(&loginRequest); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
 			return
 		}
 
@@ -39,12 +39,41 @@ func SetupRouter() *gin.Engine {
 			case errors.Is(err, internal.ErrInvalidCredentials):
 				c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
 			default:
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "Internal server error"})
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 			}
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"token": token})
+		c.JSON(http.StatusOK, gin.H{"token": token, "message": "user logged in"})
+	})
+
+	router.POST("/account/register", func(c *gin.Context) {
+		var registerRequest models.RegisterRequest
+
+		// Bind the request body to the LoginRequest struct
+		if err := c.ShouldBindJSON(&registerRequest); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
+			return
+		}
+
+		// Register the user
+		err := internal.Register(registerRequest)
+		if err != nil {
+			switch {
+			case errors.Is(err, internal.ErrInvalidEmail):
+				c.JSON(http.StatusBadRequest, gin.H{"error": "invalid email"})
+			case errors.Is(err, internal.ErrDuplicateUsername):
+				c.JSON(http.StatusBadRequest, gin.H{"error": "username already in use"})
+			case errors.Is(err, internal.ErrDuplicateEmail):
+				c.JSON(http.StatusBadRequest, gin.H{"error": "email already in use"})
+			default:
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+			}
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"message": "user registered"})
+
 	})
 
 	router.Use(authMiddleware())
@@ -53,7 +82,7 @@ func SetupRouter() *gin.Engine {
 	// Account endpoints
 	router.GET("/account/verify", func(c *gin.Context) {
 		claims := c.MustGet("claims").(jwt.MapClaims)
-		c.JSON(http.StatusOK, gin.H{"message": "User is verified", "claims": claims})
+		c.JSON(http.StatusOK, gin.H{"message": "user is verified", "claims": claims})
 	})
 
 	return router
