@@ -1,8 +1,7 @@
-SET
-    timezone TO 'Europe/Amsterdam';
-
+SET timezone TO 'Europe/Amsterdam';
+ALTER DATABASE skatetrackerdev
+SET timezone = 'Europe/Amsterdam';
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
-
 CREATE TABLE users (
     user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username VARCHAR(30) UNIQUE NOT NULL,
@@ -11,7 +10,6 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT now(),
     updated_at TIMESTAMP
 );
-
 CREATE TABLE achievements (
     achievement_id SERIAL PRIMARY KEY,
     title VARCHAR(30) UNIQUE NOT NULL,
@@ -19,7 +17,6 @@ CREATE TABLE achievements (
     icon_path VARCHAR(255) UNIQUE NOT NULL,
     created_at TIMESTAMP DEFAULT now()
 );
-
 CREATE TABLE boards (
     board_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
@@ -33,7 +30,6 @@ CREATE TABLE boards (
     created_at TIMESTAMP DEFAULT now(),
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
-
 CREATE TABLE rides (
     ride_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
@@ -47,7 +43,6 @@ CREATE TABLE rides (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (board_id) REFERENCES boards(board_id) ON DELETE CASCADE
 );
-
 CREATE TABLE trackings (
     tracking_id SERIAL PRIMARY KEY,
     ride_id UUID NOT NULL,
@@ -58,7 +53,6 @@ CREATE TABLE trackings (
     shakiness REAL,
     FOREIGN KEY (ride_id) REFERENCES rides(ride_id) ON DELETE CASCADE
 );
-
 CREATE TABLE user_achievements (
     user_id UUID NOT NULL,
     achievement_id INT NOT NULL,
@@ -67,18 +61,13 @@ CREATE TABLE user_achievements (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (achievement_id) REFERENCES achievements(achievement_id) ON DELETE CASCADE
 );
-
-INSERT INTO
-    users (username, email, password_hash)
-VALUES
-    (
+INSERT INTO users (username, email, password_hash)
+VALUES (
         'test1',
         'test@gmail.com',
-        '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'
+        '$2y$10$8FuXtRQH2A9pKNhgALXdCuAmUX/CYJ6ZYqS9B/xxDyfAaEOzIOGuG'
     );
-
-INSERT INTO
-    boards (
+INSERT INTO boards (
         user_id,
         nickname,
         ride_count,
@@ -88,15 +77,11 @@ INSERT INTO
         total_ridetime,
         primary_board
     )
-VALUES
-    (
+VALUES (
         (
-            SELECT
-                user_id
-            FROM
-                users
-            WHERE
-                username = 'test1'
+            SELECT user_id
+            FROM users
+            WHERE username = 'test1'
         ),
         'test board',
         1,
@@ -106,9 +91,7 @@ VALUES
         INTERVAL '1 hours 33 minutes',
         TRUE
     );
-
-INSERT INTO
-    rides (
+INSERT INTO rides (
         user_id,
         board_id,
         title,
@@ -116,32 +99,23 @@ INSERT INTO
         distance,
         top_speed
     )
-VALUES
-    (
+VALUES (
         (
-            SELECT
-                user_id
-            FROM
-                users
-            WHERE
-                username = 'test1'
+            SELECT user_id
+            FROM users
+            WHERE username = 'test1'
         ),
         (
-            SELECT
-                board_id
-            FROM
-                boards
-            WHERE
-                nickname = 'test board'
+            SELECT board_id
+            FROM boards
+            WHERE nickname = 'test board'
         ),
         'test rit 1',
         'eerste test rit met test board',
         2400,
         11.6667
     );
-
-INSERT INTO
-    trackings (
+INSERT INTO trackings (
         ride_id,
         tracking_time,
         latitude,
@@ -149,15 +123,11 @@ INSERT INTO
         speed,
         shakiness
     )
-VALUES
-    (
+VALUES (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:00:06.7559140',
         51.55973665,
@@ -167,12 +137,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:00:11.7022810',
         51.55975607,
@@ -182,12 +149,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:00:16.6726460',
         51.55976563,
@@ -197,12 +161,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:00:21.6624370',
         51.55988229,
@@ -212,12 +173,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:00:26.6643170',
         51.56003578,
@@ -227,12 +185,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:00:31.6902290',
         51.56008864,
@@ -242,12 +197,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:00:36.6752920',
         51.55971203,
@@ -257,12 +209,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:00:41.6844070',
         51.5590869,
@@ -272,12 +221,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:00:46.6811510',
         51.55853756,
@@ -287,12 +233,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:00:51.6810910',
         51.55803534,
@@ -302,12 +245,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:00:56.6878470',
         51.55771794,
@@ -317,12 +257,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:01:02.7486020',
         51.55752166,
@@ -332,12 +269,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:01:06.7565230',
         51.55757779,
@@ -347,12 +281,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:01:11.6874960',
         51.55773569,
@@ -362,12 +293,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:01:17.7447880',
         51.55800978,
@@ -377,12 +305,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:01:21.7531290',
         51.55828506,
@@ -392,12 +317,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:01:26.6820810',
         51.55854059,
@@ -407,12 +329,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:01:32.7360620',
         51.55894973,
@@ -422,12 +341,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:01:36.7411000',
         51.55929302,
@@ -437,12 +353,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:01:41.7040710',
         51.55962941,
@@ -452,12 +365,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:01:46.6633880',
         51.5599931,
@@ -467,12 +377,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:01:51.6763810',
         51.56030829,
@@ -482,12 +389,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:01:56.6725640',
         51.56057994,
@@ -497,12 +401,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:02:01.6783930',
         51.56090132,
@@ -512,12 +413,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:02:06.6874290',
         51.56114244,
@@ -527,12 +425,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:02:11.6804010',
         51.56140196,
@@ -542,12 +437,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:02:16.6861810',
         51.56164866,
@@ -557,12 +449,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:02:22.7419420',
         51.56198929,
@@ -572,12 +461,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:02:26.7393900',
         51.56226083,
@@ -587,12 +473,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:02:31.6864930',
         51.56261833,
@@ -602,12 +485,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:02:36.6920890',
         51.56300359,
@@ -617,12 +497,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:02:42.7474120',
         51.56376197,
@@ -632,12 +509,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:02:46.7462130',
         51.56418001,
@@ -647,12 +521,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:02:51.6955700',
         51.56459445,
@@ -662,12 +533,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:02:56.6865070',
         51.56503557,
@@ -677,12 +545,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:03:02.7488740',
         51.56540439,
@@ -692,12 +557,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:03:06.7374680',
         51.56568509,
@@ -707,12 +569,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:03:11.6926710',
         51.56589773,
@@ -722,12 +581,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:03:16.7129220',
         51.56607256,
@@ -737,12 +593,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:03:21.6832240',
         51.56594188,
@@ -752,12 +605,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:03:26.6919040',
         51.56544941,
@@ -767,12 +617,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:03:32.7385860',
         51.56500694,
@@ -782,12 +629,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:03:36.7322090',
         51.56522068,
@@ -797,12 +641,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:03:41.6861560',
         51.56529595,
@@ -812,12 +653,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:03:47.8178020',
         51.56536181,
@@ -827,12 +665,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:03:52.7675680',
         51.56548431,
@@ -842,12 +677,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:03:56.7700850',
         51.56545075,
@@ -857,12 +689,9 @@ VALUES
     ),
     (
         (
-            SELECT
-                ride_id
-            FROM
-                rides
-            WHERE
-                title = 'test rit 1'
+            SELECT ride_id
+            FROM rides
+            WHERE title = 'test rit 1'
         ),
         '2022-04-17 13:04:01.6862090',
         51.56542665,
