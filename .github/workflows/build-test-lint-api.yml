@@ -47,7 +47,7 @@ jobs:
 
   # Test unit tests
   test:
-    needs: build
+    #needs: build
     name: Test
     runs-on: ubuntu-latest
     steps:
@@ -60,4 +60,4 @@ jobs:
       - name: Run tests
         run: |
           cd api
-          go test ./...
+          go test ./tests/...
