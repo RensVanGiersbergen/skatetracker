@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"embed"
 	"fmt"
+	"time"
 
 	_ "github.com/lib/pq"
 	log "github.com/sirupsen/logrus"
@@ -27,20 +28,26 @@ func InitPostgresDB(connStr string) {
 		log.Fatal("POSTGRES_CONNECTION_STRING environment variable is not set")
 	}
 
-	// Open a connection to the PostgreSQL database
 	var err error
-	db, err = sql.Open("postgres", connStr)
-	if err != nil {
-		log.Fatalf("Failed to open a DB connection: %v", err)
-	}
+	for {
+		// Open a connection to the PostgreSQL database
+		db, err = sql.Open("postgres", connStr)
+		if err != nil {
+			log.Errorf("Failed to open a DB connection: %v", err)
+		} else {
+			// Verify the connection is established successfully
+			err = db.Ping()
+			if err == nil {
+				log.Info("Connected to PostgreSQL Instance")
+				break
+			} else {
+				log.Errorf("Failed to connect to PostgreSQL: %v", err)
+			}
+		}
 
-	// Verify the connection is established successfully
-	err = db.Ping()
-	if err != nil {
-		log.Fatalf("Failed to connect to PostgreSQL: %v", err)
+		log.Info("Retrying in 10 seconds...")
+		time.Sleep(10 * time.Second)
 	}
-
-	log.Info("Connected to PostgreSQL Instance")
 }
 
 // ClosePostgresDB closes the connection to the PostgreSQL database

@@ -2,6 +2,7 @@ SET timezone TO 'Europe/Amsterdam';
 ALTER DATABASE skatetrackerdev
 SET timezone = 'Europe/Amsterdam';
 CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+CREATE EXTENSION IF NOT EXISTS timescaledb CASCADE;
 CREATE TABLE users (
     user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username VARCHAR(30) UNIQUE NOT NULL,
@@ -34,6 +35,7 @@ CREATE TABLE rides (
     ride_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
     board_id UUID NOT NULL,
+    completed BOOLEAN DEFAULT FALSE,
     title VARCHAR(30),
     description VARCHAR(255),
     start_time TIMESTAMP DEFAULT now(),
@@ -44,15 +46,21 @@ CREATE TABLE rides (
     FOREIGN KEY (board_id) REFERENCES boards(board_id) ON DELETE CASCADE
 );
 CREATE TABLE trackings (
-    tracking_id SERIAL PRIMARY KEY,
+    tracking_id SERIAL,
     ride_id UUID NOT NULL,
-    tracking_time TIMESTAMP DEFAULT now(),
+    tracking_time TIMESTAMP NOT NULL DEFAULT now(),
     latitude DOUBLE PRECISION NOT NULL,
     longitude DOUBLE PRECISION NOT NULL,
     speed REAL,
     shakiness REAL,
+    PRIMARY KEY (tracking_id, tracking_time),
     FOREIGN KEY (ride_id) REFERENCES rides(ride_id) ON DELETE CASCADE
 );
+SELECT create_hypertable(
+        'trackings',
+        'tracking_time',
+        chunk_time_interval => INTERVAL '1 day'
+    );
 CREATE TABLE user_achievements (
     user_id UUID NOT NULL,
     achievement_id INT NOT NULL,
@@ -61,13 +69,15 @@ CREATE TABLE user_achievements (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (achievement_id) REFERENCES achievements(achievement_id) ON DELETE CASCADE
 );
-INSERT INTO users (username, email, password_hash)
+INSERT INTO users (user_id, username, email, password_hash)
 VALUES (
+        '7f733200-d7d3-4f56-b247-ff9f1d957ef0',
         'test1',
         'test@gmail.com',
         '$2y$10$8FuXtRQH2A9pKNhgALXdCuAmUX/CYJ6ZYqS9B/xxDyfAaEOzIOGuG'
     );
 INSERT INTO boards (
+        board_id,
         user_id,
         nickname,
         ride_count,
@@ -78,11 +88,8 @@ INSERT INTO boards (
         primary_board
     )
 VALUES (
-        (
-            SELECT user_id
-            FROM users
-            WHERE username = 'test1'
-        ),
+        'cda45722-8177-4f18-90e8-cdee6f399c1e',
+        '7f733200-d7d3-4f56-b247-ff9f1d957ef0',
         'test board',
         1,
         'Verreal',
@@ -92,26 +99,26 @@ VALUES (
         TRUE
     );
 INSERT INTO rides (
+        ride_id,
         user_id,
         board_id,
+        completed,
         title,
         description,
+        start_time,
+        end_time,
         distance,
         top_speed
     )
 VALUES (
-        (
-            SELECT user_id
-            FROM users
-            WHERE username = 'test1'
-        ),
-        (
-            SELECT board_id
-            FROM boards
-            WHERE nickname = 'test board'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
+        '7f733200-d7d3-4f56-b247-ff9f1d957ef0',
+        'cda45722-8177-4f18-90e8-cdee6f399c1e',
+        TRUE,
         'test rit 1',
         'eerste test rit met test board',
+        '2024-11-27 12:04:36.939431',
+        '2024-11-27 13:21:01.6862090',
         2400,
         11.6667
     );
@@ -124,11 +131,7 @@ INSERT INTO trackings (
         shakiness
     )
 VALUES (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:00:06.7559140',
         51.55973665,
         5.35546529,
@@ -136,11 +139,7 @@ VALUES (
         0.52
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:00:11.7022810',
         51.55975607,
         5.35554604,
@@ -148,11 +147,7 @@ VALUES (
         0.61
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:00:16.6726460',
         51.55976563,
         5.35552746,
@@ -160,11 +155,7 @@ VALUES (
         0.33
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:00:21.6624370',
         51.55988229,
         5.35566028,
@@ -172,11 +163,7 @@ VALUES (
         0.45
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:00:26.6643170',
         51.56003578,
         5.35591384,
@@ -184,11 +171,7 @@ VALUES (
         0.68
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:00:31.6902290',
         51.56008864,
         5.35605028,
@@ -196,11 +179,7 @@ VALUES (
         0.59
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:00:36.6752920',
         51.55971203,
         5.35614965,
@@ -208,11 +187,7 @@ VALUES (
         0.72
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:00:41.6844070',
         51.5590869,
         5.35614524,
@@ -220,11 +195,7 @@ VALUES (
         0.51
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:00:46.6811510',
         51.55853756,
         5.35627134,
@@ -232,11 +203,7 @@ VALUES (
         0.66
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:00:51.6810910',
         51.55803534,
         5.35673992,
@@ -244,11 +211,7 @@ VALUES (
         0.39
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:00:56.6878470',
         51.55771794,
         5.35759958,
@@ -256,11 +219,7 @@ VALUES (
         0.57
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:01:02.7486020',
         51.55752166,
         5.35880079,
@@ -268,11 +227,7 @@ VALUES (
         0.62
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:01:06.7565230',
         51.55757779,
         5.35961688,
@@ -280,11 +235,7 @@ VALUES (
         0.54
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:01:11.6874960',
         51.55773569,
         5.36033016,
@@ -292,11 +243,7 @@ VALUES (
         0.58
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:01:17.7447880',
         51.55800978,
         5.3612801,
@@ -304,11 +251,7 @@ VALUES (
         0.64
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:01:21.7531290',
         51.55828506,
         5.36187813,
@@ -316,11 +259,7 @@ VALUES (
         0.46
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:01:26.6820810',
         51.55854059,
         5.36247243,
@@ -328,11 +267,7 @@ VALUES (
         0.49
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:01:32.7360620',
         51.55894973,
         5.36334327,
@@ -340,11 +275,7 @@ VALUES (
         0.53
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:01:36.7411000',
         51.55929302,
         5.36385426,
@@ -352,11 +283,7 @@ VALUES (
         0.47
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:01:41.7040710',
         51.55962941,
         5.36445811,
@@ -364,11 +291,7 @@ VALUES (
         0.61
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:01:46.6633880',
         51.5599931,
         5.36504749,
@@ -376,11 +299,7 @@ VALUES (
         0.55
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:01:51.6763810',
         51.56030829,
         5.3655795,
@@ -388,11 +307,7 @@ VALUES (
         0.60
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:01:56.6725640',
         51.56057994,
         5.36604476,
@@ -400,11 +315,7 @@ VALUES (
         0.67
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:02:01.6783930',
         51.56090132,
         5.36669381,
@@ -412,11 +323,7 @@ VALUES (
         0.56
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:02:06.6874290',
         51.56114244,
         5.36748107,
@@ -424,11 +331,7 @@ VALUES (
         0.49
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:02:11.6804010',
         51.56140196,
         5.3681195,
@@ -436,11 +339,7 @@ VALUES (
         0.62
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:02:16.6861810',
         51.56164866,
         5.36878855,
@@ -448,11 +347,7 @@ VALUES (
         0.70
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:02:22.7419420',
         51.56198929,
         5.36968156,
@@ -460,11 +355,7 @@ VALUES (
         0.51
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:02:26.7393900',
         51.56226083,
         5.37021555,
@@ -472,11 +363,7 @@ VALUES (
         0.48
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:02:31.6864930',
         51.56261833,
         5.37069795,
@@ -484,11 +371,7 @@ VALUES (
         0.54
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:02:36.6920890',
         51.56300359,
         5.37104888,
@@ -496,11 +379,7 @@ VALUES (
         0.56
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:02:42.7474120',
         51.56376197,
         5.37125985,
@@ -508,11 +387,7 @@ VALUES (
         0.50
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:02:46.7462130',
         51.56418001,
         5.37159033,
@@ -520,11 +395,7 @@ VALUES (
         0.64
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:02:51.6955700',
         51.56459445,
         5.37206015,
@@ -532,11 +403,7 @@ VALUES (
         0.57
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:02:56.6865070',
         51.56503557,
         5.3725249,
@@ -544,11 +411,7 @@ VALUES (
         0.49
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:03:02.7488740',
         51.56540439,
         5.37295023,
@@ -556,11 +419,7 @@ VALUES (
         0.62
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:03:06.7374680',
         51.56568509,
         5.3731907,
@@ -568,11 +427,7 @@ VALUES (
         0.61
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:03:11.6926710',
         51.56589773,
         5.37344986,
@@ -580,11 +435,7 @@ VALUES (
         0.55
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:03:16.7129220',
         51.56607256,
         5.37363877,
@@ -592,11 +443,7 @@ VALUES (
         0.57
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:03:21.6832240',
         51.56594188,
         5.3739405,
@@ -604,11 +451,7 @@ VALUES (
         0.51
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:03:26.6919040',
         51.56544941,
         5.37440912,
@@ -616,11 +459,7 @@ VALUES (
         0.59
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:03:32.7385860',
         51.56500694,
         5.37477867,
@@ -628,11 +467,7 @@ VALUES (
         0.46
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:03:36.7322090',
         51.56522068,
         5.37510559,
@@ -640,11 +475,7 @@ VALUES (
         0.52
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:03:41.6861560',
         51.56529595,
         5.37542899,
@@ -652,11 +483,7 @@ VALUES (
         0.48
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:03:47.8178020',
         51.56536181,
         5.37541485,
@@ -664,11 +491,7 @@ VALUES (
         0.63
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:03:52.7675680',
         51.56548431,
         5.37539319,
@@ -676,11 +499,7 @@ VALUES (
         0.55
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:03:56.7700850',
         51.56545075,
         5.37532509,
@@ -688,11 +507,7 @@ VALUES (
         0.62
     ),
     (
-        (
-            SELECT ride_id
-            FROM rides
-            WHERE title = 'test rit 1'
-        ),
+        '40f9decb-fe66-4133-aff0-69ca962a77a1',
         '2022-04-17 13:04:01.6862090',
         51.56542665,
         5.3753347,

@@ -27,6 +27,9 @@ vendor/
 # Environment files
 .env
 
+# Test files
+*_test.go
+
 # System files
 .DS_Store
 Thumbs.db
