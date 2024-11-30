@@ -31,21 +31,26 @@ func main() {
 		log.SetLevel(log.InfoLevel)
 	}
 
-	// Initialize the PostgreSQL connection
-	repository.InitPostgresDB(os.Getenv("POSTGRES_CONNECTION_STRING"))
-
-	defer repository.ClosePostgresDB() // Ensure the DB connection is closed when the app stops
-
 	// Load all queries
 	errQueries := repository.LoadQueries()
 	if errQueries != nil {
 		log.Fatalf("Error loading queries: %v", errQueries)
 	}
 
+	// Initialize the PostgreSQL connection
+	repository.InitPostgresDB(os.Getenv("POSTGRES_CONNECTION_STRING"))
+
+	defer repository.ClosePostgresDB() // Ensure the DB connection is closed when the app stops
+
 	// Router config
 	r := router.SetupRouter()
-	errRouter := r.Run() // listen and serve on 0.0.0.0:8080 (Default)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = ":8080"
+	}
+	errRouter := r.Run(port) // listen and serve on 0.0.0.0:8080 (Default)
 	if errRouter != nil {
 		log.Fatal("Error starting gin router")
 	}
+	log.Infof("Server running on port %s", port)
 }

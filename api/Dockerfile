@@ -1,6 +1,11 @@
 # Use a smaller base image for the builder stage
 FROM golang:1.23 AS builder
 
+# Set environment variables with docker-compose
+ENV POSTGRES_CONNECTION_STRING=${POSTGRES_CONNECTION_STRING}
+ENV JWT_SECRET=${JWT_SECRET}
+ENV PORT=${PORT}
+
 # Set working directory
 WORKDIR /app
 
