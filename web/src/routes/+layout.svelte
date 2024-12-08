@@ -41,6 +41,9 @@
 		Discord channel on Ionic server - https://discordapp.com/channels/520266681499779082/1049388501629681675
 	*/
 
+	// Import the icons
+	import { rocket, trophy, person } from "ionicons/icons";
+
 	import { toastController } from "ionic-svelte";
 	import { toastParams } from "$lib/stores/feedbackStore";
 
@@ -60,8 +63,63 @@
 			}
 		});
 	}
+
+	import { page } from "$app/stores";
+	import { goto } from "$app/navigation";
+
+	const myTabs = [
+		{
+			title: "Trophies",
+			url: "/trophies",
+			icon: trophy,
+		},
+		{
+			title: "Rides",
+			url: "/",
+			icon: rocket,
+		},
+		{
+			title: "Profile",
+			url: "/profile",
+			icon: person,
+		},
+	];
+
+	function navigateHandler(page) {
+		goto(page);
+	}
 </script>
 
 <ion-app>
 	<slot />
+
+	{#if $page.url.pathname !== "/login" && $page.url.pathname !== "/register"}
+		<ion-tabs>
+			<ion-tab-bar slot="bottom">
+				{#each myTabs as tab}
+					<!-- svelte-ignore a11y-click-events-have-key-events -->
+					<!-- svelte-ignore a11y-no-static-element-interactions -->
+					<ion-tab-button
+						tab={tab.url}
+						type="button"
+						on:click={() => {
+							navigateHandler(tab.url);
+						}}
+					>
+						<ion-icon
+							icon={tab.icon}
+							color={$page.url.pathname === tab.url
+								? "primary"
+								: "medium"}
+						></ion-icon>
+						<ion-label
+							color={$page.url.pathname === tab.url
+								? "primary"
+								: "medium"}>{tab.title}</ion-label
+						>
+					</ion-tab-button>
+				{/each}
+			</ion-tab-bar>
+		</ion-tabs>
+	{/if}
 </ion-app>
