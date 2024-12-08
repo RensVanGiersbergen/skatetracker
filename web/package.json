@@ -27,6 +27,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@capacitor/android": "^6.2.0",
 		"@capacitor/core": "^6.2.0",
 		"@ionic/core": "8.2.2",
 		"axios": "^1.7.8",

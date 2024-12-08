@@ -2,8 +2,5 @@
 	"webDir": "build",
 	"appId": "com.skatetracker.app",
 	"appName": "Skatetracker",
-	"_server": {
-		"url": "http://172.17.160.1:5173/",
-		"cleartext": true
-	}
+	"allowMixedContent": true
 }

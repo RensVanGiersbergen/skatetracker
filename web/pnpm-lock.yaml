@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@capacitor/android':
+    specifier: ^6.2.0
+    version: 6.2.0(@capacitor/core@6.2.0)
   '@capacitor/core':
     specifier: ^6.2.0
     version: 6.2.0
@@ -74,6 +77,14 @@ packages:
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
     dev: true
+
+  /@capacitor/android@6.2.0(@capacitor/core@6.2.0):
+    resolution: {integrity: sha512-3YIDPylV0Q2adEQ/H568p496QdYG0jK/XGMdx7OGSqdBZen92ciAsYdyhLtyl91UVsN1lBhDi5H6j3T2KS6aJg==}
+    peerDependencies:
+      '@capacitor/core': ^6.2.0
+    dependencies:
+      '@capacitor/core': 6.2.0
+    dev: false
 
   /@capacitor/cli@6.2.0:
     resolution: {integrity: sha512-EWcXG39mZh35zrHhOqzN1ILeSyMRyEqWVtQDXqMGjCXYRH6b6p5TvyvLDN8ZNy26tbhI3i79gfrgirt+mNwuuw==}

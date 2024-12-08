@@ -18,10 +18,9 @@ func SetupRouter() *gin.Engine {
 
 	// CORS configuration
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:5173"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
-		AllowHeaders:     []string{"Content-Type", "Authorization"},
-		ExposeHeaders:    []string{"Content-Length"},
+		AllowOrigins:     []string{"http://localhost:5173", "http://localhost", "https://localhost"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization", "X-Requested-With"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	}))
@@ -30,7 +29,6 @@ func SetupRouter() *gin.Engine {
 	accountPrefix := "/account"
 	ridePrefix := "/ride"
 
-	//Define all endpoints
 	// Unprotected endpoints
 	// Login
 	router.POST(accountPrefix+"/login", func(c *gin.Context) {
