@@ -64,6 +64,23 @@
 		});
 	}
 
+	// Verify token before accessing the app
+	import { showToast } from "$lib/stores/feedbackStore";
+	import api from "$lib/axios";
+	(async () => {
+		try {
+			await api.get("/account/verify");
+		} catch (error) {
+			showToast({
+				color: "danger",
+				message: error.response.data.error,
+				duration: 5000,
+			});
+			localStorage.removeItem("authToken");
+			goto("/login");
+		}
+	})();
+
 	import { page } from "$app/stores";
 	import { goto } from "$app/navigation";
 
@@ -91,16 +108,16 @@
 </script>
 
 <ion-app>
-	<slot />
-
 	{#if $page.url.pathname !== "/login" && $page.url.pathname !== "/register"}
+		<div id="content">
+			<slot />
+		</div>
 		<ion-tabs>
 			<ion-tab-bar slot="bottom">
 				{#each myTabs as tab}
 					<!-- svelte-ignore a11y-click-events-have-key-events -->
 					<!-- svelte-ignore a11y-no-static-element-interactions -->
 					<ion-tab-button
-						tab={tab.url}
 						type="button"
 						on:click={() => {
 							navigateHandler(tab.url);
@@ -121,5 +138,37 @@
 				{/each}
 			</ion-tab-bar>
 		</ion-tabs>
+	{:else}
+		<ion-app>
+			<slot />
+		</ion-app>
 	{/if}
 </ion-app>
+
+<style>
+	ion-app {
+		position: relative;
+		height: 100%;
+		display: flex;
+		flex-direction: column;
+	}
+
+	#content {
+		padding-bottom: 57px; /* Reserve space for the tab bar */
+		overflow-y: auto; /* Enable scrolling for long content */
+		flex: 1; /* Allows content to expand dynamically */
+	}
+
+	ion-tabs {
+		top: auto;
+		height: 57px;
+	}
+
+	ion-tab-bar {
+		position: absolute;
+		bottom: 0;
+		height: 57px; /* Ensure tab bar height is flexible */
+		width: 100%;
+		border-top: 1px solid var(--ion-color-primary);
+	}
+</style>

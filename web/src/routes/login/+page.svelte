@@ -41,6 +41,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Login - Skatetracker</title>
+</svelte:head>
+
 <ion-content fullscreen class="ion-padding">
 	<div class="form-container">
 		<ion-img src="/images/skatetrackerlogo.png" alt="logo" class="logo"

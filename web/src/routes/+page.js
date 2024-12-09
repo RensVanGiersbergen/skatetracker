@@ -1,7 +1,7 @@
 // src/routes/+page.js
 import { goto } from '$app/navigation';
-import { showToast } from '$lib/stores/feedbackStore';
 import api from '$lib/axios';
+import { showToast } from '$lib/stores/feedbackStore';
 
 export async function load() {
     const token = localStorage.getItem('authToken');
@@ -12,16 +12,15 @@ export async function load() {
         goto('/login');
     }
 
-    // Verify the token on the server
     try {
-        await api.get('/account/verify');
+        const response = await api.get('/ride/all?page=1&limit=10')
+        const rides = await response.data
+        return { rides }
     } catch (error) {
         showToast({
-            color: 'danger',
+            color: "danger",
             message: error.response.data.error,
-            duration: 5000
+            duration: 5000,
         });
-        localStorage.removeItem('authToken');
-        goto('/login');
     }
 }
