@@ -36,7 +36,7 @@
     <title>Rides - Skatetracker</title>
 </svelte:head>
 
-<ion-content class="ion-padding">
+<ion-content fullscreen class="ion-padding">
     {#if $page.data.rides === null}
         <ion-card>
             <ion-card-header>
@@ -97,7 +97,7 @@
                                     message:
                                         "Your top speed was " +
                                         (ride.top_speed * 3.6).toFixed(2) +
-                                        " km/h, blazingly fast.",
+                                        " km/h.",
                                     buttons: [`Let's go!`],
                                 })}
                             >
@@ -120,7 +120,7 @@
                                             ride.start_time,
                                             ride.end_time,
                                         ) +
-                                        " in total",
+                                        " in total.",
                                     buttons: [`Let's go!`],
                                 })}
                             >
