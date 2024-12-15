@@ -57,15 +57,6 @@ func GetAllRidesByUserWithPagination(userId string, page int, limit int) ([]mode
 	return rides, nil
 }
 
-func UpdateRide(ride models.Ride) (models.Ride, error) {
-	var updatedRide models.Ride
-	err := db.QueryRow(queryStore["update_ride.sql"], ride.RideId, ride.Completed, ride.Title, ride.Description, ride.StartTime, ride.EndTime, ride.Distance, ride.TopSpeed).Scan(&updatedRide.RideId, &updatedRide.UserId, &updatedRide.BoardId, &updatedRide.Completed, &updatedRide.Title, &updatedRide.Description, &updatedRide.StartTime, &updatedRide.EndTime, &updatedRide.Distance, &updatedRide.TopSpeed)
-	if err != nil {
-		return models.Ride{}, fmt.Errorf("error executing query: %w", err)
-	}
-	return updatedRide, nil
-}
-
 func GetRideById(rideId string) (models.Ride, error) {
 	var ride models.Ride
 	err := db.QueryRow(queryStore["get_ride_by_id.sql"], rideId).Scan(&ride.RideId, &ride.UserId, &ride.BoardId, &ride.Completed, &ride.Title, &ride.Description, &ride.StartTime, &ride.EndTime, &ride.Distance, &ride.TopSpeed)

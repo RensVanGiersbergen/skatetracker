@@ -1,6 +1,4 @@
-INSERT INTO Boards (user_id, nickname, brand, primary_board)
-VALUES ($1, $2, $3, $4)
-RETURNING board_id,
+SELECT board_id,
     user_id,
     nickname,
     brand,
@@ -14,4 +12,8 @@ RETURNING board_id,
         ) AS INTEGER
     ),
     primary_board,
-    created_at;
+    created_at
+FROM boards
+WHERE user_id = $1
+ORDER BY primary_board DESC,
+    created_at DESC;

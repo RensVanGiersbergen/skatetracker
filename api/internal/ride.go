@@ -13,7 +13,6 @@ var (
 	ErrNotEnoughTrackings = errors.New("not enough trackings to finish ride")
 	ErrNotOwnerOfRide     = errors.New("user is not the owner of the ride")
 	ErrRideNotFound       = errors.New("ride not found")
-	ErrBoardNotFound      = errors.New("board not found")
 )
 
 func GetAllRidesByUserWithPagination(userId string, page int, limit int) ([]models.Ride, error) {
@@ -36,11 +35,6 @@ func GetRideById(userId, rideId string) (models.Ride, error) {
 			log.Errorf("Failed to get ride by id: %v", err)
 			return models.Ride{}, fmt.Errorf("failed to get ride by id: %w", err)
 		}
-	}
-
-	// Check if the owner of the ride is the user
-	if ride.UserId != userId {
-		return models.Ride{}, ErrNotOwnerOfRide
 	}
 
 	return ride, nil

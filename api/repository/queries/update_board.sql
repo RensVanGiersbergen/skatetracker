@@ -1,5 +1,8 @@
-INSERT INTO Boards (user_id, nickname, brand, primary_board)
-VALUES ($1, $2, $3, $4)
+UPDATE boards
+SET nickname = $2,
+    brand = $3,
+    primary_board = $4
+WHERE board_id = $1
 RETURNING board_id,
     user_id,
     nickname,
