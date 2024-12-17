@@ -42,7 +42,7 @@
 	*/
 
 	// Import the icons
-	import { rocket, trophy, person } from "ionicons/icons";
+	import { rocket, person, cog } from "ionicons/icons";
 
 	import { toastController } from "ionic-svelte";
 	import { toastParams } from "$lib/stores/feedbackStore";
@@ -85,15 +85,20 @@
 	import { goto } from "$app/navigation";
 
 	const myTabs = [
-		{
+		/* {
 			title: "Trophies",
 			url: "/trophies",
 			icon: trophy,
-		},
+		}, */
 		{
 			title: "Rides",
 			url: "/",
 			icon: rocket,
+		},
+		{
+			title: "Boards",
+			url: "/boards",
+			icon: cog,
 		},
 		{
 			title: "Profile",
@@ -108,7 +113,8 @@
 </script>
 
 <ion-app>
-	{#if $page.url.pathname !== "/login" && $page.url.pathname !== "/register"}
+	<!-- If page is any page not in the myTabs show no bottom nav-->
+	{#if $page.url && myTabs.find((tab) => tab.url === $page.url.pathname)}
 		<div id="content">
 			<slot />
 		</div>

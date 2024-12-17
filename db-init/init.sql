@@ -95,7 +95,7 @@ VALUES (
         'Verreal',
         2400,
         11.6667,
-        INTERVAL '1 hours 33 minutes',
+        INTERVAL '1 hours 16 minutes 24 seconds',
         TRUE
     );
 INSERT INTO rides (
