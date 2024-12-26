@@ -18,26 +18,28 @@
 		});
 		await loading.present();
 
-		// Call the API
-		await api
-			.post("/account/login", { email, password })
-			.then((response) => {
-				showToast({
-					color: "success",
-					message: response.data.message,
-					duration: 2000,
-				});
-				localStorage.setItem("authToken", response.data.token);
-				goto("/");
-			})
-			.catch((error) => {
-				showToast({
-					color: "danger",
-					message: error.response.data.error,
-					duration: 5000,
-				});
+		try {
+			// Call the API
+			let response = await api.post("/account/login", {
+				email,
+				password,
 			});
-		await loading.dismiss();
+			showToast({
+				color: "success",
+				message: response.data.message,
+				duration: 2000,
+			});
+			localStorage.setItem("authToken", response.data.token);
+			goto("/");
+		} catch (error) {
+			showToast({
+				color: "danger",
+				message: error.response?.data?.error || "An error occurred",
+				duration: 5000,
+			});
+		} finally {
+			await loading.dismiss();
+		}
 	}
 </script>
 

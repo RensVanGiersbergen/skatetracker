@@ -1,10 +1,44 @@
 <script>
+    import api from "$lib/axios.js";
+    import { goto } from "$app/navigation";
+    import { loadingController } from "ionic-svelte";
+    import { showToast } from "$lib/stores/feedbackStore";
     import { arrowBack } from "ionicons/icons";
     import Header from "$lib/components/Header.svelte";
 
     let nickname = "";
     let brand = "";
     let primary = false;
+
+    async function handleBoard() {
+        let loading;
+
+        loading = await loadingController.create({
+            message: "Adding board...",
+            spinner: "crescent",
+            duration: 10000,
+        });
+        await loading.present();
+
+        // Call the API
+        try {
+            await api.post("/board/add", { nickname, brand, primary });
+            showToast({
+                color: "success",
+                message: "Added board successfully",
+                duration: 2000,
+            });
+            goto("/boards");
+        } catch (error) {
+            showToast({
+                color: "danger",
+                message: error.response.data.error,
+                duration: 5000,
+            });
+        } finally {
+            await loading.dismiss();
+        }
+    }
 </script>
 
 <svelte:head>
@@ -63,9 +97,7 @@
             <ion-button
                 expand="block"
                 color="primary"
-                on:click={() => {
-                    console.log(nickname, brand, primary);
-                }}>Add board</ion-button
+                on:click={() => handleBoard()}>Add board</ion-button
             >
         </ion-card-content>
     </ion-card>

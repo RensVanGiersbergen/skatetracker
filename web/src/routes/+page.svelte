@@ -1,5 +1,6 @@
 <script>
     import { page } from "$app/stores";
+    import { goto } from "$app/navigation";
     import { add, compass, speedometer, stopwatch } from "ionicons/icons";
     import dayjs from "dayjs";
     import { alertController } from "ionic-svelte";
@@ -139,7 +140,14 @@
         {/each}
     {/if}
 
-    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <ion-fab
+        vertical="bottom"
+        horizontal="end"
+        slot="fixed"
+        on:click={() => goto("/add")}
+    >
         <ion-fab-button>
             <ion-icon icon={add}></ion-icon>
         </ion-fab-button>

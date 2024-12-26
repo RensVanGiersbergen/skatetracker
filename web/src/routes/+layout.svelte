@@ -68,6 +68,11 @@
 	import { showToast } from "$lib/stores/feedbackStore";
 	import api from "$lib/axios";
 	(async () => {
+		if (!localStorage.getItem("authToken")) {
+			goto("/login");
+			return;
+		}
+
 		try {
 			await api.get("/account/verify");
 		} catch (error) {

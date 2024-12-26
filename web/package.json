@@ -29,10 +29,12 @@
 	"dependencies": {
 		"@capacitor/android": "^6.2.0",
 		"@capacitor/core": "^6.2.0",
+		"@capacitor/geolocation": "^6.1.0",
 		"@ionic/core": "8.2.2",
 		"axios": "^1.7.8",
 		"dayjs": "^1.11.13",
 		"ionic-svelte": "^0.5.85",
-		"ionicons": "^7.4.0"
+		"ionicons": "^7.4.0",
+		"leaflet": "^1.9.4"
 	}
 }

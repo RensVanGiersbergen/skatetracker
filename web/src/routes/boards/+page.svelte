@@ -31,7 +31,9 @@
 </svelte:head>
 
 <ion-content fullscreen class="ion-padding">
-    {#if $page.data.boards === null}
+    {#if $page.data === undefined}
+        <ion-spinner name="crescent"></ion-spinner>
+    {:else if $page.data.boards === null}
         <ion-card>
             <ion-card-header>
                 <ion-card-subtitle>No boards found</ion-card-subtitle>
@@ -131,6 +133,8 @@
         {/each}
     {/if}
 
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
     <ion-fab
         vertical="bottom"
         horizontal="end"
