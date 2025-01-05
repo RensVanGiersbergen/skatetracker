@@ -27,9 +27,11 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@capacitor-community/keep-awake": "^5.0.1",
 		"@capacitor/android": "^6.2.0",
 		"@capacitor/core": "^6.2.0",
 		"@capacitor/geolocation": "^6.1.0",
+		"@capacitor/motion": "^6.0.1",
 		"@ionic/core": "8.2.2",
 		"axios": "^1.7.8",
 		"dayjs": "^1.11.13",

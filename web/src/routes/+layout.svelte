@@ -118,11 +118,11 @@
 </script>
 
 <ion-app>
-	<!-- If page is any page not in the myTabs show no bottom nav-->
+	<div id="content">
+		<slot />
+	</div>
+
 	{#if $page.url && myTabs.find((tab) => tab.url === $page.url.pathname)}
-		<div id="content">
-			<slot />
-		</div>
 		<ion-tabs>
 			<ion-tab-bar slot="bottom">
 				{#each myTabs as tab}
@@ -149,10 +149,6 @@
 				{/each}
 			</ion-tab-bar>
 		</ion-tabs>
-	{:else}
-		<ion-app>
-			<slot />
-		</ion-app>
 	{/if}
 </ion-app>
 
@@ -166,7 +162,6 @@
 
 	#content {
 		padding-bottom: 57px; /* Reserve space for the tab bar */
-		overflow-y: auto; /* Enable scrolling for long content */
 		flex: 1; /* Allows content to expand dynamically */
 	}
 

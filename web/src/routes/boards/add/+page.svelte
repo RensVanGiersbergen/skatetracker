@@ -5,6 +5,7 @@
     import { showToast } from "$lib/stores/feedbackStore";
     import { arrowBack } from "ionicons/icons";
     import Header from "$lib/components/Header.svelte";
+    import { onMount } from "svelte";
 
     let nickname = "";
     let brand = "";

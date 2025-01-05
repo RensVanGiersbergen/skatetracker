@@ -3,6 +3,7 @@
 
     export let title = "Header title";
     export let color = "primary";
+    export let disableBack = false;
 </script>
 
 <ion-header>
@@ -10,7 +11,11 @@
         <ion-buttons slot="start">
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <ion-button on:click={() => window.history.back()} fill="clear">
+            <ion-button
+                on:click={() => window.history.back()}
+                fill="clear"
+                disabled={disableBack}
+            >
                 <ion-icon slot="icon-only" icon={arrowBack} />
             </ion-button>
         </ion-buttons>

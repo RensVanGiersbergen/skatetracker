@@ -3,7 +3,7 @@ import { goto } from '$app/navigation';
 
 // Axios configuration
 const api = axios.create({
-  baseURL: 'http://192.168.1.142:8080' /* http://localhost:8080, http://172.27.176.1:8080, http://192.168.1.143:8080, http://192.168.2.8:8080 */,
+  baseURL: 'http://192.168.2.9:8080' /* http://localhost:8080, http://172.27.176.1:8080, http://192.168.1.143:8080, http://192.168.2.8:8080 */,
   headers: {
     'Content-Type': 'application/json'
   }
