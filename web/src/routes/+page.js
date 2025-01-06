@@ -4,7 +4,7 @@ import { showToast } from '$lib/stores/feedbackStore';
 
 export async function load() {
     try {
-        const response = await api.get('/ride/all?page=1&limit=10')
+        const response = await api.get('/ride/all?page=1&limit=100')
         const rides = await response.data
         return { rides }
     } catch (error) {
