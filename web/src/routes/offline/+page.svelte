@@ -18,3 +18,9 @@
         Go back
     </ion-button>
 </ion-content>
+
+<style>
+    ion-content {
+        --background: var(--ion-color-light);
+    }
+</style>

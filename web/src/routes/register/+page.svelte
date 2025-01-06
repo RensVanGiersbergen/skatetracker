@@ -18,7 +18,7 @@
 
 		// Show spinner
 		loading = await loadingController.create({
-			message: "Logging in...",
+			message: "Creating account...",
 			spinner: "crescent",
 			duration: 10000,
 		});

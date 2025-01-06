@@ -51,7 +51,9 @@
         </ion-card>
     {:else}
         {#each $page.data.rides as ride}
-            <ion-card>
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <ion-card on:click={() => goto(`/details/${ride.ride_id}`)}>
                 <ion-card-header>
                     <ion-card-subtitle
                         >{dayjs(ride.start_time).format(

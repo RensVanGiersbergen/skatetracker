@@ -1,4 +1,4 @@
-// src/routes/boards/+page.js
+// src/routes/add/+page.js
 import api from '$lib/axios';
 import { showToast } from '$lib/stores/feedbackStore';
 import { goto } from '$app/navigation';

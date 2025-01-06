@@ -187,40 +187,46 @@
     async function stopTracking() {
         // Upload ride data
         try {
-            await api.post("/ride/add", {
+            const response = await api.post("/ride/add", {
                 title: rideName,
                 description: rideDescription,
                 board_id: selectedBoard.board_id,
                 trackings: $locations,
             });
+
+            isTracking = false;
+            isModalOpen = false;
+
+            // Stop timer
+            stopTimer();
+
+            // Stop watching location and reset variables
+            await Geolocation.clearWatch({ id: watchId });
+            $locations = [];
+            watchId = null;
+
+            // Stop watching motion and reset variables
+            await Motion.removeAllListeners();
+            shakinessAverage = null;
+            measurementCount = 0;
+
+            // Allow screen to sleep
+            await KeepAwake.allowSleep();
+
+            showToast({
+                color: "success",
+                message: "Ride saved successfully",
+                duration: 3000,
+            });
+
+            goto(`/details/${response.data.ride_id}`);
         } catch (error) {
             showToast({
                 color: "danger",
                 message: error.response.data.error,
                 duration: 5000,
             });
-            return;
         }
-
-        isTracking = false;
-
-        // Stop timer
-        stopTimer();
-
-        // Stop watching location and reset variables
-        await Geolocation.clearWatch({ id: watchId });
-        $locations = [];
-        watchId = null;
-
-        // Stop watching motion and reset variables
-        await Motion.removeAllListeners();
-        shakinessAverage = null;
-        measurementCount = 0;
-
-        // Allow screen to sleep
-        await KeepAwake.allowSleep();
-
-        goto("/");
     }
 
     onMount(async () => {
@@ -247,7 +253,7 @@
         }
 
         // Add the tile layer
-        await L.tileLayer(
+        L.tileLayer(
             "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
             {
                 maxZoom: 18,
@@ -342,10 +348,12 @@
                         <ion-note slot="end">
                             {$locations.length > 0
                                 ? (
-                                      $locations.reduce(
-                                          (acc, loc) => acc + loc.speed,
+                                      ($locations.reduce(
+                                          (sum, loc) => sum + loc.speed,
                                           0,
-                                      ) / $locations.length
+                                      ) /
+                                          $locations.length) *
+                                      3.6
                                   ).toFixed(2)
                                 : "0"} km/h</ion-note
                         >
@@ -354,8 +362,10 @@
                         <ion-label>Top Speed:</ion-label>
                         <ion-note slot="end"
                             >{$locations.length > 0
-                                ? Math.max(
-                                      ...$locations.map((loc) => loc.speed),
+                                ? (
+                                      Math.max(
+                                          ...$locations.map((loc) => loc.speed),
+                                      ) * 3.6
                                   ).toFixed(2)
                                 : "0"} km/h</ion-note
                         >
@@ -363,7 +373,7 @@
                     <ion-item>
                         <ion-label>Total distance:</ion-label>
                         <ion-note slot="end">
-                            {calculateDistance($locations)} km</ion-note
+                            {calculateDistance($locations).toFixed(2)} km</ion-note
                         >
                     </ion-item>
                 </div>

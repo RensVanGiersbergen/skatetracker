@@ -14,7 +14,7 @@
 		loading = await loadingController.create({
 			message: "Logging in...",
 			spinner: "crescent",
-			duration: 10000,
+			duration: 100000,
 		});
 		await loading.present();
 

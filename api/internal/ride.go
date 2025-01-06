@@ -37,6 +37,14 @@ func GetRideById(userId, rideId string) (models.Ride, error) {
 		}
 	}
 
+	// Get the trackings for the ride
+	trackings, err1 := repository.GetTrackingsForRide(rideId)
+	if err1 != nil {
+		log.Errorf("Failed to get trackings for ride: %v", err1)
+		return models.Ride{}, fmt.Errorf("failed to get trackings for ride: %w", err1)
+	}
+	ride.Trackings = trackings
+
 	return ride, nil
 }
 

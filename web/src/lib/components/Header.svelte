@@ -1,9 +1,11 @@
 <script>
     import { arrowBack } from "ionicons/icons";
+    import { goto } from "$app/navigation";
 
     export let title = "Header title";
     export let color = "primary";
     export let disableBack = false;
+    export let goHome = false;
 </script>
 
 <ion-header>
@@ -12,7 +14,13 @@
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-no-static-element-interactions -->
             <ion-button
-                on:click={() => window.history.back()}
+                on:click={() => {
+                    if (goHome) {
+                        goto("/");
+                    } else {
+                        window.history.back();
+                    }
+                }}
                 fill="clear"
                 disabled={disableBack}
             >
