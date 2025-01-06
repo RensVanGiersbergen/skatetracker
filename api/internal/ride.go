@@ -37,66 +37,49 @@ func GetRideById(userId, rideId string) (models.Ride, error) {
 		}
 	}
 
-	// Check if the owner of the ride is the user
-	err1 := checkIfUserIsOwnerOfRide(ride.UserId, rideId)
+	// Get the trackings for the ride
+	trackings, err1 := repository.GetTrackingsForRide(rideId)
 	if err1 != nil {
-		return models.Ride{}, err1
+		log.Errorf("Failed to get trackings for ride: %v", err1)
+		return models.Ride{}, fmt.Errorf("failed to get trackings for ride: %w", err1)
 	}
+	ride.Trackings = trackings
 
 	return ride, nil
 }
 
-func AddRide(ride models.Ride) (models.Ride, error) {
-	// Add the ride to the database
-	createdRide, err := repository.AddRide(ride)
-	if err != nil {
-		log.Errorf("Failed to add ride to the database: %v", err)
-		return models.Ride{}, err
-	}
-	return createdRide, nil
-}
-
-func FinishRide(ride models.Ride) (models.Ride, error) {
+func AddRide(ride models.AddRide) (models.Ride, error) {
 	// Check if there are enough trackings to finish the ride
 	if len(ride.Trackings) < 2 {
 		return models.Ride{}, ErrNotEnoughTrackings
 	}
 
-	// Check if user is owner of the ride
-	err := checkIfUserIsOwnerOfRide(ride.UserId, ride.RideId)
+	// Create new ride model from add ride models
+	var newRide models.Ride
+	newRide.UserId = ride.UserId
+	newRide.BoardId = ride.BoardId
+	newRide.Title = ride.Title
+	newRide.Description = ride.Description
+	newRide.Trackings = ride.Trackings
+
+	// Add missing fields for the ride
+	newRide.Completed = true
+	newRide.StartTime = ride.Trackings[0].TrackingTime
+	newRide.EndTime = ride.Trackings[len(ride.Trackings)-1].TrackingTime
+	newRide.Distance = CalculateTotalDistance(ride.Trackings)
+	newRide.TopSpeed = GetTopSpeed(ride.Trackings)
+
+	// Add the ride to the database
+	createdRide, err := repository.AddRide(newRide)
 	if err != nil {
-		if errors.Is(err, ErrNotOwnerOfRide) {
-			return models.Ride{}, ErrNotOwnerOfRide
+		if err.Error() == "board not found" {
+			return models.Ride{}, ErrBoardNotFound
 		} else {
+			log.Errorf("Failed to add ride to the database: %v", err)
 			return models.Ride{}, err
 		}
 	}
-	// Insert the trackings into the database
-	err1 := repository.AddTrackingsToRide(ride.Trackings)
-	if err1 != nil {
-		log.Errorf("Failed to add trackings to ride: %v", err1)
-		return models.Ride{}, fmt.Errorf("failed to add trackings to ride: %w", err1)
-	}
-
-	// Calculate the distance and top speed
-	ride.Distance = CalculateTotalDistance(ride.Trackings)
-	ride.TopSpeed = CalculateTopSpeed(ride.Trackings)
-
-	// Set ride to finished
-	ride.Completed = true
-	ride.EndTime = &ride.Trackings[len(ride.Trackings)-1].TrackingTime
-
-	// Update the ride to finish it
-	updatedRide, err2 := repository.UpdateRide(ride)
-	if err2 != nil {
-		log.Errorf("Failed to update ride: %v", err2)
-		return models.Ride{}, err2
-	}
-
-	// Set trackings to updated ride
-	updatedRide.Trackings = ride.Trackings
-
-	return updatedRide, nil
+	return createdRide, nil
 }
 
 func DeleteRide(userId, rideId string) error {

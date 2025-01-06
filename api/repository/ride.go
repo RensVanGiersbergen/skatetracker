@@ -10,9 +10,29 @@ func AddRide(ride models.Ride) (models.Ride, error) {
 	var createdRide models.Ride
 
 	// Execute the query and return the ride id
-	err := db.QueryRow(queryStore["add_ride.sql"], ride.UserId, ride.BoardId, ride.Title, ride.Description).Scan(&createdRide.RideId, &createdRide.UserId, &createdRide.BoardId, &createdRide.Title, &createdRide.Description, &createdRide.StartTime)
+	err := db.QueryRow(queryStore["add_ride.sql"], ride.UserId, ride.BoardId, ride.Completed, ride.Title, ride.Description, ride.StartTime, ride.EndTime, ride.Distance, ride.TopSpeed).Scan(&createdRide.RideId, &createdRide.UserId, &createdRide.BoardId, &createdRide.Completed, &createdRide.Title, &createdRide.Description, &createdRide.StartTime, &createdRide.EndTime, &createdRide.Distance, &createdRide.TopSpeed)
 	if err != nil {
-		return models.Ride{}, fmt.Errorf("error executing query: %w", err)
+		// Check if error is fk constraint error
+		if err.Error() == "pq: insert or update on table \"rides\" violates foreign key constraint \"rides_board_id_fkey\"" {
+			return models.Ride{}, fmt.Errorf("board not found")
+		} else {
+			return models.Ride{}, fmt.Errorf("error executing query: %w", err)
+		}
+	}
+
+	// Set ride id for trackings
+	for i := range ride.Trackings {
+		ride.Trackings[i].RideId = createdRide.RideId
+	}
+
+	err1 := AddTrackingsToRide(ride.Trackings)
+	if err1 != nil {
+		return models.Ride{}, fmt.Errorf("error adding trackings to ride: %w", err1)
+	}
+
+	err2 := updateBoardStats(createdRide)
+	if err2 != nil {
+		return models.Ride{}, fmt.Errorf("error updating board stats: %w", err2)
 	}
 	return createdRide, nil
 }
@@ -35,15 +55,6 @@ func GetAllRidesByUserWithPagination(userId string, page int, limit int) ([]mode
 		rides = append(rides, ride)
 	}
 	return rides, nil
-}
-
-func UpdateRide(ride models.Ride) (models.Ride, error) {
-	var updatedRide models.Ride
-	err := db.QueryRow(queryStore["update_ride.sql"], ride.RideId, ride.Completed, ride.Title, ride.Description, ride.StartTime, ride.EndTime, ride.Distance, ride.TopSpeed).Scan(&updatedRide.RideId, &updatedRide.UserId, &updatedRide.BoardId, &updatedRide.Completed, &updatedRide.Title, &updatedRide.Description, &updatedRide.StartTime, &updatedRide.EndTime, &updatedRide.Distance, &updatedRide.TopSpeed)
-	if err != nil {
-		return models.Ride{}, fmt.Errorf("error executing query: %w", err)
-	}
-	return updatedRide, nil
 }
 
 func GetRideById(rideId string) (models.Ride, error) {

@@ -22,12 +22,12 @@ CREATE TABLE boards (
     board_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL,
     nickname VARCHAR(30),
-    ride_count SMALLINT,
     brand VARCHAR(30),
-    total_distance INTEGER,
-    top_speed REAL,
-    total_ridetime INTERVAL,
-    primary_board BOOLEAN,
+    ride_count SMALLINT DEFAULT 0,
+    total_distance INTEGER DEFAULT 0,
+    top_speed REAL DEFAULT 0.0,
+    total_ridetime INTERVAL SECOND(0) DEFAULT '0 hours 0 minutes',
+    primary_board BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT now(),
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
@@ -95,7 +95,7 @@ VALUES (
         'Verreal',
         2400,
         11.6667,
-        INTERVAL '1 hours 33 minutes',
+        INTERVAL '1 hours 16 minutes 24 seconds',
         TRUE
     );
 INSERT INTO rides (

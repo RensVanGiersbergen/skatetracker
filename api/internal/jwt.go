@@ -14,7 +14,7 @@ func generateJWT(user models.User) (string, error) {
 		"sub":      user.UserId,
 		"username": user.Username,
 		"email":    user.Email,
-		"exp":      time.Now().AddDate(1, 0, 0).Unix(),
+		"exp":      time.Now().AddDate(100, 0, 0).Unix(),
 	})
 
 	// Sign and get the complete encoded token as a string

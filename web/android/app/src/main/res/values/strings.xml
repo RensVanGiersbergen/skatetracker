@@ -2,6 +2,6 @@
 <resources>
     <string name="app_name">Skatetracker</string>
     <string name="title_activity_main">Skatetracker</string>
-    <string name="package_name">com.rensvangiersbergen.skatetracker</string>
-    <string name="custom_url_scheme">com.rensvangiersbergen.skatetracker</string>
+    <string name="package_name">com.skatetracker.app</string>
+    <string name="custom_url_scheme">com.skatetracker.app</string>
 </resources>

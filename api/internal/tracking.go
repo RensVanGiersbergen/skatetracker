@@ -23,7 +23,7 @@ func haversine(lat1, lon1, lat2, lon2 float64) float64 {
 }
 
 // Calculate total distance from a list of trackings
-func CalculateTotalDistance(trackings []models.Tracking) *uint32 {
+func CalculateTotalDistance(trackings []models.Tracking) uint32 {
 	totalDistance := 0.0
 
 	// Iterate through consecutive points
@@ -34,16 +34,16 @@ func CalculateTotalDistance(trackings []models.Tracking) *uint32 {
 	}
 
 	roundedDistance := uint32(math.Round(totalDistance))
-	return &roundedDistance // Distance in meters
+	return roundedDistance // Distance in meters
 }
 
-// Calculate top speed from a list of trackings
-func CalculateTopSpeed(trackings []models.Tracking) *float32 {
+// Get top speed from a list of trackings
+func GetTopSpeed(trackings []models.Tracking) float32 {
 	topSpeed := float32(0)
 	for _, tracking := range trackings {
 		if tracking.Speed > topSpeed {
 			topSpeed = tracking.Speed
 		}
 	}
-	return &topSpeed // Speed in m/s
+	return topSpeed // Speed in m/s
 }

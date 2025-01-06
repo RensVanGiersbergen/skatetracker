@@ -4,21 +4,32 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/RensVanGiersbergen/skatetracker/internal"
 	"github.com/RensVanGiersbergen/skatetracker/models"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func SetupRouter() *gin.Engine {
 	router := gin.Default()
 
+	// CORS configuration
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:5173", "http://localhost", "https://localhost"},
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "Authorization", "X-Requested-With"},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}))
+
 	// Define route prefixes
 	accountPrefix := "/account"
 	ridePrefix := "/ride"
+	boardPrefix := "/board"
 
-	//Define all endpoints
 	// Unprotected endpoints
 	// Login
 	router.POST(accountPrefix+"/login", func(c *gin.Context) {
@@ -84,7 +95,7 @@ func SetupRouter() *gin.Engine {
 	// Protected endpoints (JWT required)
 	// Account endpoints
 	// Verify (JWT)
-	router.GET("/account/verify", func(c *gin.Context) {
+	router.GET(accountPrefix+"/verify", func(c *gin.Context) {
 		claims := c.MustGet("claims").(jwt.MapClaims)
 		c.JSON(http.StatusOK, gin.H{"message": "user is verified", "claims": claims})
 	})
@@ -92,7 +103,7 @@ func SetupRouter() *gin.Engine {
 	// Ride endpoints
 	// Add ride
 	router.POST(ridePrefix+`/add`, func(c *gin.Context) {
-		var ride models.Ride
+		var ride models.AddRide
 
 		// Bind the request body to the ride struct
 		if err := c.ShouldBindJSON(&ride); err != nil {
@@ -107,42 +118,16 @@ func SetupRouter() *gin.Engine {
 		// Add the ride
 		createdRide, err := internal.AddRide(ride)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
-			return
+			if errors.Is(err, internal.ErrBoardNotFound) {
+				c.JSON(http.StatusBadRequest, gin.H{"error": "board not found"})
+				return
+			} else {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+				return
+			}
 		}
 
 		c.JSON(http.StatusOK, createdRide)
-	})
-
-	// Finish ride
-	router.PUT(ridePrefix+`/finish`, func(c *gin.Context) {
-		var ride models.Ride
-
-		// Bind the request body to the ride struct
-		if err := c.ShouldBindJSON(&ride); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
-			return
-		}
-
-		// Get the user id from the claims and add it to the ride struct
-		claims := c.MustGet("claims").(jwt.MapClaims)
-		ride.UserId = claims["sub"].(string)
-
-		// Finish the ride
-		finishedRide, err := internal.FinishRide(ride)
-		if err != nil {
-			switch {
-			case errors.Is(err, internal.ErrNotOwnerOfRide):
-				c.JSON(http.StatusUnauthorized, gin.H{"error": "user is not the owner of the ride"})
-			case errors.Is(err, internal.ErrNotEnoughTrackings):
-				c.JSON(http.StatusBadRequest, gin.H{"error": "not enough trackings to finish ride"})
-			default:
-				c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
-			}
-			return
-		}
-
-		c.JSON(http.StatusOK, finishedRide)
 	})
 
 	// Delete ride
@@ -219,8 +204,6 @@ func SetupRouter() *gin.Engine {
 			switch {
 			case errors.Is(err, internal.ErrRideNotFound):
 				c.JSON(http.StatusNotFound, gin.H{"error": "ride not found"})
-			case errors.Is(err, internal.ErrNotOwnerOfRide):
-				c.JSON(http.StatusUnauthorized, gin.H{"error": "user is not the owner of the ride"})
 			default:
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 			}
@@ -228,6 +211,99 @@ func SetupRouter() *gin.Engine {
 		}
 
 		c.JSON(http.StatusOK, ride)
+	})
+
+	// Board endpoints
+	// Add board
+	router.POST(boardPrefix+`/add`, func(c *gin.Context) {
+		var board models.AddBoard
+
+		// Bind the request body to the board struct
+		if err := c.ShouldBindJSON(&board); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
+			return
+		}
+
+		// Get the user id from the claims and add it to the board struct
+		claims := c.MustGet("claims").(jwt.MapClaims)
+		board.UserId = claims["sub"].(string)
+
+		// Add the board
+		addedBoard, err := internal.AddBoard(board)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+			return
+		}
+
+		c.JSON(http.StatusOK, addedBoard)
+	})
+
+	// Get my boards
+	router.GET(boardPrefix+`/mine`, func(c *gin.Context) {
+		// Get the user id from the claims
+		claims := c.MustGet("claims").(jwt.MapClaims)
+		userId := claims["sub"].(string)
+
+		// Get the boards
+		boards, err := internal.GetBoardsByUser(userId)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+			return
+		}
+
+		c.JSON(http.StatusOK, boards)
+	})
+
+	// Get board by id
+	router.GET(boardPrefix+`/getbyid/:boardId`, func(c *gin.Context) {
+		boardId := c.Param("boardId")
+
+		// Get the board
+		board, err := internal.GetBoardById(boardId)
+		if err != nil {
+			switch {
+			case errors.Is(err, internal.ErrBoardNotFound):
+				c.JSON(http.StatusNotFound, gin.H{"error": "board not found"})
+			default:
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+			}
+			return
+		}
+
+		c.JSON(http.StatusOK, board)
+	})
+
+	// Update board
+	router.PUT(boardPrefix+`/update/:boardId`, func(c *gin.Context) {
+		boardId := c.Param("boardId")
+		var board models.Board
+
+		// Bind the request body to the board struct
+		if err := c.ShouldBindJSON(&board); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid input"})
+			return
+		}
+
+		// Add userId and boardId from claims and params
+		claims := c.MustGet("claims").(jwt.MapClaims)
+		board.UserId = claims["sub"].(string)
+		board.BoardId = boardId
+
+		// Update the board
+		updatedBoard, err := internal.UpdateBoard(board)
+		if err != nil {
+			switch {
+			case errors.Is(err, internal.ErrBoardNotFound):
+				c.JSON(http.StatusNotFound, gin.H{"error": "board not found"})
+			case errors.Is(err, internal.ErrNotOwnerOfBoard):
+				c.JSON(http.StatusUnauthorized, gin.H{"error": "user is not the owner of the board"})
+			default:
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
+			}
+			return
+		}
+
+		c.JSON(http.StatusOK, updatedBoard)
 	})
 	return router
 }

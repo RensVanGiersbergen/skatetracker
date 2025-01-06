@@ -1,5 +1,6 @@
 {
-	"appId": "com.rensvangiersbergen.skatetracker",
+	"webDir": "build",
+	"appId": "com.skatetracker.app",
 	"appName": "Skatetracker",
-	"webDir": "build"
+	"allowMixedContent": true
 }
